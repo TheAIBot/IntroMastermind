@@ -1,0 +1,27 @@
+
+Code = array(1,4); #random numbers from 1-8
+
+Guess = empty array(1,4); #numbers from 1-8
+Response = empty array(1,4); # 0 (Not right),1 (Color right), or 2 (Color and position right).
+
+
+S = matrix with all possible states;
+
+Actons = [change color, switch color];
+
+Guess = random guess;
+Response = get response;
+
+while Guess =! Code
+{
+    
+
+
+
+
+
+}
+
+you win
+
+
