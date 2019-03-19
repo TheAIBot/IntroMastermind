@@ -34,10 +34,8 @@ def Output(X):
 
 ##  Deleting by index
 def DelId(Index,SearchSpace):
-    SearchSpace=SearchSpace.tolist()
-    del SearchSpace[Index]
-    SearchSpace=np.array(SearchSpace)   
-    return SearchSpace
+    return np.delete(SearchSpace, Index, 0)
+
 ## Transforming Search Space With White PEGS 
 def delW1(Guess,Pegs,SearchSpace):
     if all(Pegs==np.array([0,0])):                                  #Case with no pegs
