@@ -12,6 +12,9 @@ import time
 tid = time.process_time()
 CODE=np.array([1,3,5,0])
 
+BLACKP = 0
+WHITEP = 1
+
 #Board
 ncolor=6
 npos=4
@@ -19,18 +22,19 @@ L=np.arange(ncolor)
 #Functions
 LoopCounter=np.zeros(7)
 ##  Output funtion
-def Output(X): 
-    O=np.array([0,0])
-    O[0]=(CODE==X).sum() # BLACK pegs
-    for i in L:          # White pegs
-        LoopCounter[0]+=1
-        if (any(i==CODE)) and (any(i==X)):
-            if ((X == i).sum() == (CODE == i).sum()) or ((X == i).sum() <= (CODE == i).sum()):
-                O[1]+=(X == i).sum()
-            if (X == i).sum() > (CODE == i).sum():
-                O[1]+=(CODE == i).sum()
-    O[1]-=O[0]          # White pegs minus black pegs avoid double count
-    return O
+def Feedback(answer, guess): 
+    feedback = np.array([0, 0])
+    feedback[BLACKP] = (answer == guess).sum() # BLACK pegs
+    for color in L:          # White pegs
+        colorOccurencesInGuess  = (guess  == color).sum()
+        colorOccurencesInAnswer = (answer == color).sum()
+        if colorOccurencesInAnswer > 0 and colorOccurencesInGuess > 0:
+            if (colorOccurencesInGuess == colorOccurencesInAnswer) or (colorOccurencesInGuess <= colorOccurencesInAnswer):
+                feedback[WHITEP] += colorOccurencesInGuess
+            if colorOccurencesInGuess > colorOccurencesInAnswer:
+                feedback[WHITEP] += colorOccurencesInAnswer
+    feedback[WHITEP] -= feedback[BLACKP]          # White pegs minus black pegs avoid double count
+    return feedback
 
 ##  Deleting by index
 def DelId(Index,SearchSpace):
@@ -87,13 +91,13 @@ for l in np.arange(50):
     CODE=S[random.randint(0,len(S)-1),:]        # Random CODE
     F=S[random.randint(0,len(S)-1),:].tolist()  #Initial Guess
     n=1
-    O=Output(F)
+    O=Feedback(CODE, F)
     while O[0]!=4:
         S=DelId(S.tolist().index(F),S) #Removing Guess From SearchSpace
         S=delW1(F,O,S)                 #Acting on White pegs
         S=delB1(F,O,S)                 #Acting on Black pegs
         F=S[random.randint(0,len(S)-1),:].tolist() #New Guess
-        O=Output(F)                                #Output from guess     
+        O=Feedback(CODE, F)                                #Output from guess     
         n+=1                                       #Iteration Counter
         if all(F==CODE):
             print('solution',F,'Pegs',Output(F),'Guesses',n,'ShapeSolutionSpace',np.shape(S),l) #Printing result
