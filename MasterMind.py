@@ -37,34 +37,21 @@ def Feedback(answer, guess):
     return feedback
 
 ##  Deleting by index
-def DelId(Index,SearchSpace):
-    return np.delete(SearchSpace, Index, 0)
+def DelId(index, searchSpace):
+    return np.delete(searchSpace, index, 0)
 
 ## Transforming Search Space With White PEGS 
-def delW1(Guess,Pegs,SearchSpace):
-    if all(Pegs==np.array([0,0])):                                  #Case with no pegs
-        for i in np.flip(np.arange(len(SearchSpace), dtype=int)):   #Deleting all solutions containing colors in guess
-            LoopCounter[1]+=1
-            if len(set(SearchSpace[i,:]).intersection(Guess))>0:
-                SearchSpace=DelId(i,SearchSpace)
-    if (Pegs[1] != 0) & (Pegs[0] == 0):                             #If there is white pegs and no black
-        for i in np.flip(np.arange(len(SearchSpace), dtype=int)):   #Going throw states in S
-            LoopCounter[2]+=1
-            for k in np.arange(npos):                               #Going throw pos in state
-                LoopCounter[3]+=1
-                if SearchSpace[i,k]==Guess[k]:                      #If State Has color in same pos as in state it is remove(No black peg)         
-                   SearchSpace=DelId(i,SearchSpace)
+def delW1(Guess, pegs, searchSpace):
+    if (pegs[WHITEP] != 0) & (pegs[BLACKP] == 0):                             #If there is white pegs and no black
+        for i in reversed(range(len(searchSpace))):   #Going throw states in S
+            for k in range(npos):                               #Going throw pos in state
+                if searchSpace[i, k] == Guess[k]:                      #If State Has color in same pos as in state it is remove(No black peg)         
+                   searchSpace = DelId(i, searchSpace)
                    break
-    if all(Pegs[1]==np.array([0])):
-        return SearchSpace
-    for k in np.arange(npos)+1: #Should be last
-        LoopCounter[4]+=1
-        if all(Pegs[1]==np.array([k])):
-            for i in np.flip(np.arange(len(SearchSpace), dtype=int)):
-                LoopCounter[5]+=1
-                if len(set(SearchSpace[i,:]).intersection(Guess))>(k+Pegs[0]):
-                    SearchSpace=DelId(i,SearchSpace)          
-    return SearchSpace
+    for i in reversed(range(len(searchSpace))):
+        if len(set(searchSpace[i, :]).intersection(Guess))>(pegs.sum()):
+            searchSpace=DelId(i, searchSpace)   
+    return searchSpace
 
 ## Transforming Search Space With Black PEGS 
 def delB1(Guess,Pegs,SearchSpace):
@@ -85,8 +72,8 @@ for i in L:
                 SS[q,:]=[i,p,j,k]
                 q=q+1 
 #Play the game
-Iteration=np.zeros(50)
-for l in np.arange(50):         
+Iteration=np.zeros(300)
+for l in np.arange(300):         
     S=SS[:,:]                                   #Search Space
     CODE=S[random.randint(0,len(S)-1),:]        # Random CODE
     F=S[random.randint(0,len(S)-1),:].tolist()  #Initial Guess
