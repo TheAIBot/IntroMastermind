@@ -86,7 +86,7 @@ for l in np.arange(50):
     S=SS[:,:]                                   #Search Space
     CODE=S[random.randint(0,len(S)-1),:]        # Random CODE
     F=S[random.randint(0,len(S)-1),:].tolist()  #Initial Guess
-    n=0
+    n=1
     O=Output(F)
     while O[0]!=4:
         S=DelId(S.tolist().index(F),S) #Removing Guess From SearchSpace
