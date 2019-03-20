@@ -55,7 +55,7 @@ def RemoveIndex(index, searchSpace):
 def delW1(Guess, pegs, searchSpace):
     if (pegs[WHITEP] != 0) & (pegs[BLACKP] == 0):                             #If there is white pegs and no black
         indicesToRemove = []
-        for i in reversed(range(len(searchSpace))):   #Going throw states in S
+        for i in range(len(searchSpace)):   #Going throw states in S
             for k in range(npos):                               #Going throw pos in state
                 if searchSpace[i, k] == Guess[k]:                      #If State Has color in same pos as in state it is remove(No black peg)         
                     indicesToRemove.append(i)
@@ -64,7 +64,7 @@ def delW1(Guess, pegs, searchSpace):
     
     indicesToRemove = []
     pegSum = pegs.sum()
-    for i in reversed(range(len(searchSpace))):
+    for i in range(len(searchSpace)):
         if len(set(searchSpace[i, :]).intersection(Guess)) > pegSum:
             indicesToRemove.append(i)  
     return np.delete(searchSpace, indicesToRemove, 0)
@@ -82,7 +82,7 @@ def delB1(guess, pegs, searchSpace):
         return searchSpace
         
     indicesToRemove = []
-    for i in reversed(range(len(searchSpace))):   #Going throw states from the bag of SS  
+    for i in range(len(searchSpace)):   #Going throw states from the bag of SS  
         if not sumEquals(searchSpace[i, :], guess) == pegs[BLACKP]: #With k, Guess 5.15, with pegs 4.6-5.1
             indicesToRemove.append(i)
     return np.delete(searchSpace, indicesToRemove, 0)
