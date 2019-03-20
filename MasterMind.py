@@ -12,7 +12,6 @@ import sys
 
 
 tid = time.process_time()
-CODE=np.array([1,3,5,0])
 
 #arr = np.array([[1],[2],[3],[4],[5],[6],[7],[8]])
 #print(arr)
@@ -88,23 +87,33 @@ def delB1(guess, pegs, searchSpace):
             indicesToRemove.append(i)
     return np.delete(searchSpace, indicesToRemove, 0)
 #######################
-SS=np.ones((ncolor**npos,npos), dtype=int) #Full State Space
-q=0
-for i in L:
-    for p in L:
-        for j in L:
-            for k in L:
-                SS[q,:]=[i,p,j,k]
-                q=q+1 
+
+
+def createStateSpace(stateSpace, columnsLeft, index, guess):
+    if columnsLeft == 0:
+        stateSpace[index, :] = guess.copy()
+        return index + 1
+        
+    for i in range(ncolor):
+        guess.append(i)
+        index = createStateSpace(stateSpace, columnsLeft - 1, index, guess)
+        guess.pop()
+    
+    return index
+
+StateSpace = np.ones((ncolor**npos,npos), dtype=int) #Full State Space
+createStateSpace(StateSpace, npos, 0, [])
+
+
 #Play the game
 Iteration=np.zeros(1000)
 for l in range(1000):         
-    S=SS[:,:]                                   #Search Space
+    S=StateSpace[:,:]                                   #Search Space
     CODE=S[random.randint(0,len(S)-1),:]        # Random CODE
     F=S[random.randint(0,len(S)-1),:].tolist()  #Initial Guess
     n=1
     O=Feedback(CODE, F)
-    while O[0]!=4:
+    while O[0]!=npos:
         S=RemoveIndex(S.tolist().index(F),S) #Removing Guess From SearchSpace
         S=delW1(F,O,S)                 #Acting on White pegs
         S=delB1(F,O,S)                 #Acting on Black pegs
