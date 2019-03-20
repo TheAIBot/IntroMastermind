@@ -115,8 +115,8 @@ for l in range(1000):
     O=Feedback(CODE, F)
     while O[BLACKP] != npos:
         S=RemoveIndex(S.tolist().index(F),S) #Removing Guess From SearchSpace
-        S=delW1(F,O,S)                 #Acting on White pegs
         S=delB1(F,O,S)                 #Acting on Black pegs
+        S=delW1(F,O,S)                 #Acting on White pegs
         F=S[random.randint(0,len(S)-1),:].tolist() #New Guess
         O=Feedback(CODE, F)                                #Output from guess     
         n+=1                                       #Iteration Counter
