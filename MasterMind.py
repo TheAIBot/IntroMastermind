@@ -26,16 +26,16 @@ BLACKP = 0
 WHITEP = 1
 
 #Board
-ncolor=6
-npos=4
-L=np.arange(ncolor)
+ncolor = 6
+npos = 4
+colors = np.arange(ncolor)
 #Functions
-LoopCounter=np.zeros(7)
+
 ##  Output funtion
 def Feedback(answer, guess): 
     feedback = np.array([0, 0])
     feedback[BLACKP] = (answer == guess).sum() # BLACK pegs
-    for color in L:          # White pegs
+    for color in colors:          # White pegs
         colorOccurencesInGuess  = (guess  == color).sum()
         colorOccurencesInAnswer = (answer == color).sum()
         if colorOccurencesInAnswer > 0 and colorOccurencesInGuess > 0:
@@ -113,7 +113,7 @@ for l in range(1000):
     F=S[random.randint(0,len(S)-1),:].tolist()  #Initial Guess
     n=1
     O=Feedback(CODE, F)
-    while O[0]!=npos:
+    while O[BLACKP] != npos:
         S=RemoveIndex(S.tolist().index(F),S) #Removing Guess From SearchSpace
         S=delW1(F,O,S)                 #Acting on White pegs
         S=delB1(F,O,S)                 #Acting on Black pegs
