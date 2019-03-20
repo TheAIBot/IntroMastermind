@@ -20,7 +20,6 @@ CODE=np.array([1,3,5,0])
 #arr = np.delete(arr, toDelete, 0)
 #print(arr)
 
-
 #sys.exit("Error message")
 
 
@@ -51,6 +50,7 @@ def Feedback(answer, guess):
 ##  Deleting by index
 def RemoveIndex(index, searchSpace):
     return np.delete(searchSpace, index, 0)
+            
 
 ## Transforming Search Space With White PEGS 
 def delW1(Guess, pegs, searchSpace):
@@ -60,16 +60,22 @@ def delW1(Guess, pegs, searchSpace):
             for k in range(npos):                               #Going throw pos in state
                 if searchSpace[i, k] == Guess[k]:                      #If State Has color in same pos as in state it is remove(No black peg)         
                     indicesToRemove.append(i)
-                    #searchSpace = RemoveIndex(i, searchSpace)
                     break
         searchSpace = np.delete(searchSpace, indicesToRemove, 0)
     
     indicesToRemove = []
+    pegSum = pegs.sum()
     for i in reversed(range(len(searchSpace))):
-        if len(set(searchSpace[i, :]).intersection(Guess))>(pegs.sum()):
-            indicesToRemove.append(i)
-            #searchSpace=RemoveIndex(i, searchSpace)   
+        if len(set(searchSpace[i, :]).intersection(Guess)) > pegSum:
+            indicesToRemove.append(i)  
     return np.delete(searchSpace, indicesToRemove, 0)
+
+def sumEquals(a, b):
+    s = 0
+    for i in range(len(a)):
+        if a[i] == b[i]:
+            s = s + 1
+    return s
 
 ## Transforming Search Space With Black PEGS 
 def delB1(guess, pegs, searchSpace):
@@ -78,7 +84,7 @@ def delB1(guess, pegs, searchSpace):
         
     indicesToRemove = []
     for i in reversed(range(len(searchSpace))):   #Going throw states from the bag of SS  
-        if not (searchSpace[i, :] == guess).sum() == pegs[BLACKP]: #With k, Guess 5.15, with pegs 4.6-5.1
+        if not sumEquals(searchSpace[i, :], guess) == pegs[BLACKP]: #With k, Guess 5.15, with pegs 4.6-5.1
             indicesToRemove.append(i)
     return np.delete(searchSpace, indicesToRemove, 0)
 #######################
@@ -91,8 +97,8 @@ for i in L:
                 SS[q,:]=[i,p,j,k]
                 q=q+1 
 #Play the game
-Iteration=np.zeros(300)
-for l in range(300):         
+Iteration=np.zeros(1000)
+for l in range(1000):         
     S=SS[:,:]                                   #Search Space
     CODE=S[random.randint(0,len(S)-1),:]        # Random CODE
     F=S[random.randint(0,len(S)-1),:].tolist()  #Initial Guess
