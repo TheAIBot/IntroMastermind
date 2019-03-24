@@ -100,6 +100,33 @@ def createStateSpace(stateSpace, columnsLeft, index, guess):
         guess.pop()
     
     return index
+## Calculate the best guess
+def bestGuess(SearchSpace):
+    bestG = np.array([])
+    bestWorstCaseDecreasedSearchSpace = 1296
+    for i in SearchSpace:
+        ind = i.tolist()
+        worstCaseDecreasedSearchSpace = 0
+        for j in range(npos+1):
+            for k in range(npos+1-j):
+                print('i: ', i, 'j: ', j, 'k: ', k)
+                S = SearchSpace
+                print(len(S))
+                O = np.array([j, k])
+                S=RemoveIndex(S.tolist().index(ind),S)
+                print(len(S))
+                S=delB1(i,O,S)
+                print(len(S))
+                S=delW1(i,O,S)
+                print(len(S))
+                if(len(S) > worstCaseDecreasedSearchSpace):
+                    worstCaseDecreasedSearchSpace = len(S)
+                    print('hey: ', worstCaseDecreasedSearchSpace)
+        if(worstCaseDecreasedSearchSpace < bestWorstCaseDecreasedSearchSpace):
+            bestWorstCaseDecreasedSearchSpace = worstCaseDecreasedSearchSpace
+            bestG = i
+    print(bestWorstCaseDecreasedSearchSpace)
+    return(bestG)
 
 StateSpace = np.ones((ncolor**npos,npos), dtype=int) #Full State Space
 createStateSpace(StateSpace, npos, 0, [])
