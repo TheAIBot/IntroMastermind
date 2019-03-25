@@ -137,14 +137,18 @@ Iteration=np.zeros(1000)
 for l in range(1000):         
     S=StateSpace[:,:]                                   #Search Space
     CODE=S[random.randint(0,len(S)-1),:]        # Random CODE
-    F=S[random.randint(0,len(S)-1),:].tolist()  #Initial Guess
+    guessIndex = random.randint(0,len(S)-1)
+    #F=bestGuess(S)#S[random.randint(0,len(S)-1),:].tolist()  #Initial Guess
+    F=S[guessIndex,:].tolist()  #Initial Guess
     n=1
     O=Feedback(CODE, F)
     while O[BLACKP] != npos:
-        S=RemoveIndex(S.tolist().index(F),S) #Removing Guess From SearchSpace
+        S=RemoveIndex(guessIndex, S) #Removing Guess From SearchSpace
         S=delB1(F,O,S)                 #Acting on Black pegs
         S=delW1(F,O,S)                 #Acting on White pegs
-        F=S[random.randint(0,len(S)-1),:].tolist() #New Guess
+        guessIndex = random.randint(0,len(S)-1)
+        #F=bestGuess(S)#S[random.randint(0,len(S)-1),:].tolist() #New Guess
+        F=S[guessIndex,:].tolist() #New Guess
         O=Feedback(CODE, F)                                #Output from guess     
         n+=1                                       #Iteration Counter
         if all(F==CODE):
