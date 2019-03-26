@@ -64,12 +64,15 @@ def delW1(Guess, pegs, searchSpace):
                     break
         searchSpace = np.delete(searchSpace, indicesToRemove, 0)
     
-    indicesToRemove = []
+
     pegSum = pegs.sum()
-    for i in range(len(searchSpace)):
-        if len(set(searchSpace[i, :]).intersection(Guess)) > pegSum:
-            indicesToRemove.append(i)  
-    return np.delete(searchSpace, indicesToRemove, 0)
+    if pegSum < npos:
+        indicesToRemove = []
+        for i in range(len(searchSpace)):
+            if len(set(searchSpace[i, :]).intersection(Guess)) > pegSum:
+                indicesToRemove.append(i)  
+        searchSpace = np.delete(searchSpace, indicesToRemove, 0)
+    return searchSpace
 
 def sumEquals(a, b):
     s = 0
