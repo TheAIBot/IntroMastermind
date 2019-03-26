@@ -104,21 +104,31 @@ def createStateSpace(stateSpace, columnsLeft, index, guess):
     return index
 
 ## Calculate the best guess
-def bestGuess(SearchSpace):
+def bestGuess(SearchSpace, origGuess, origFeedback):
+    origFeedbackSum = 0
+    if origFeedback is not None:
+        origFeedbackSum = origFeedback.sum()
+    
     bestG = np.array([])
-    bestWorstCaseDecreasedSearchSpace = 1296
+    bestWorstCaseDecreasedSearchSpace = len(SearchSpace)
     for i in range(len(SearchSpace)):
         guess = SearchSpace[i, :].tolist()
         worstCaseDecreasedSearchSpace = 0
+        
+        guessDifference = npos
+        if origGuess is not None:
+            guessDifference = npos - sumEquals(origGuess, guess)
+        
         for j in range(npos+1):
             for k in range(npos+1-j):
-                S = SearchSpace[:,:]
-                O = np.array([j, k])
-                S = RemoveIndex(i, S)
-                S = delB1(guess, O, S)
-                S = delW1(guess, O, S)
-                if(len(S) > worstCaseDecreasedSearchSpace):
-                    worstCaseDecreasedSearchSpace = len(S)
+                if abs(origFeedbackSum - (j + k)) <= guessDifference:
+                    S = SearchSpace[:,:]
+                    S = RemoveIndex(i, S)
+                    S = delB1(guess, O, S)
+                    S = delW1(guess, O, S)
+                    #print(len(S))
+                    if(len(S) > worstCaseDecreasedSearchSpace):
+                        worstCaseDecreasedSearchSpace = len(S)
         print(i)
         if(worstCaseDecreasedSearchSpace < bestWorstCaseDecreasedSearchSpace):
             bestWorstCaseDecreasedSearchSpace = worstCaseDecreasedSearchSpace
@@ -136,9 +146,9 @@ for l in range(1000):
     S=StateSpace[:,:]                                   #Search Space
     CODE=S[random.randint(0,len(S)-1),:]        # Random CODE
     guessIndex = random.randint(0,len(S)-1)
-    #F=bestGuess(S)  #Initial Guess
-    #print(F)
-    F=S[guessIndex,:].tolist()  #Initial Guess
+    F=bestGuess(S, None, None)  #Initial Guess
+    print(F)
+    #F=S[guessIndex,:].tolist()  #Initial Guess
     n=1
     O=Feedback(CODE, F)
     while O[BLACKP] != npos:
@@ -146,9 +156,9 @@ for l in range(1000):
         S=delB1(F,O,S)                 #Acting on Black pegs
         S=delW1(F,O,S)                 #Acting on White pegs
         guessIndex = random.randint(0,len(S)-1)
-        #F=bestGuess(S) #New Guess
-        #print(F)
-        F=S[guessIndex,:].tolist() #New Guess
+        F=bestGuess(S, F, O) #New Guess
+        print(F)
+        #F=S[guessIndex,:].tolist() #New Guess
         O=Feedback(CODE, F)                                #Output from guess     
         n+=1                                       #Iteration Counter
         if all(F==CODE):
