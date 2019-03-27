@@ -50,13 +50,17 @@ def sumSame(a, b):
 def Feedback(answer, guess): 
     feedback = [0, 0]
     colorsInGuess = set()
+    colorsInAnswer = []
+    positionsOfCorrectColors = []
     for i in range(len(guess)):
         if guess[i] == answer[i]:
             feedback[BLACKP] += 1
+            positionsOfCorrectColors.append(i)
         else:
             colorsInGuess.add(guess[i])
+            colorsInAnswer.append(answer[i])
     for i in colorsInGuess:
-        if i in answer:
+        if i in colorsInAnswer:
             feedback[WHITEP] += 1
 
 
@@ -89,11 +93,8 @@ def pruneValidGuessesGetNumberOfDeletedGuesses(Guess, pegs, searchSpace):
     numberOfDeletedGuesses = 0
     for i in range(len(searchSpace)):
         feedback = Feedback(Guess, searchSpace[i, :])
-        print(feedback)
         if feedback[0] != pegs[0] or feedback[1] != pegs[1]:
             numberOfDeletedGuesses += 1
-            if numberOfDeletedGuesses == len(searchSpace):
-                print("")
     return numberOfDeletedGuesses 
 
 #######################
@@ -111,37 +112,21 @@ def createStateSpace(stateSpace, columnsLeft, index, guess):
     return index
 
 ## Calculate the best guess
-def bestGuess(SearchSpace, origGuess, origFeedback):
-    origFeedbackSum = 0
-    if origFeedback is not None:
-        origFeedbackSum = origFeedback.sum()
-    pr = 0
+def bestGuess(SearchSpace):
     bestG = np.array([])
-    bestWorstCaseDecreasedSearchSpace = len(SearchSpace)
-    for i in range(len(SearchSpace)):
-        guess = SearchSpace[i, :].tolist()
-        worstCaseDecreasedSearchSpace = 0
-        
-        guessDifference = npos
-        if origGuess is not None:
-            guessDifference = npos - sumEquals(origGuess, guess)
-        
+    minimaxDeletedStates = 0
+    S = SearchSpace
+    for i in SearchSpace:
+        minDeletedStates = 1296
         for j in range(npos+1):
             for k in range(npos+1-j):
-                if abs(origFeedbackSum - (j + k)) < guessDifference:
-                    deletedGuesses = pruneValidGuessesGetNumberOfDeletedGuesses(guess, [j, k], SearchSpace)
-                    guessesRemaining = len(SearchSpace) - deletedGuesses
-                    if guessesRemaining <= 0:
-                        print(guessesRemaining)
-                    #print(len(S))
-                    if(guessesRemaining > worstCaseDecreasedSearchSpace):
-                        worstCaseDecreasedSearchSpace = guessesRemaining
-        if(worstCaseDecreasedSearchSpace < bestWorstCaseDecreasedSearchSpace):
-            bestWorstCaseDecreasedSearchSpace = worstCaseDecreasedSearchSpace
-            bestG = guess
-    #print('BestGuessThing',bestWorstCaseDecreasedSearchSpace)
-        pr += 1
-        print(pr)
+                O = np.array([j, k])
+                deletedStates = pruneValidGuessesGetNumberOfDeletedGuesses(i,O,S)
+                if(deletedStates < minDeletedStates ):
+                    minDeletedStates  = deletedStates
+        if(minDeletedStates > minimaxDeletedStates):
+            minimaxDeletedStates = minDeletedStates 
+            bestG = i
     return(bestG)
 
 StateSpace = np.ones((ncolor**npos,npos), dtype=int) #Full State Space
@@ -149,29 +134,33 @@ createStateSpace(StateSpace, npos, 0, [])
 
 
 #Play the game
-Iteration=np.zeros(100)
-for l in range(100):         
+Iteration=np.zeros(50)
+for l in range(50):         
     S=StateSpace[:,:]                                   #Search Space
     CODE=S[random.randint(0,len(S)-1),:]        # Random CODE
+    print(CODE)
     #CODE=np.array([1,0,2,4])
-    guessIndex = random.randint(0,len(S)-1)
-    F=bestGuess(S, None, None)  #Initial Guess
+    #guessIndex = random.randint(0,len(S)-1)
+    #F=bestGuess(S)  #Initial Guess
     #F=S[guessIndex,:].tolist()  #Initial Guess
-    #F=[2,2,4,4]
-    #print('InitialGuess',F)
+    F=np.array([0,0,1,2])
     n=1
     O=Feedback(CODE, F)
     while O[BLACKP] != npos:
         guessIndex=int(np.where(np.all(S==F,axis=1))[0])
         S=RemoveIndex(guessIndex, S) #Removing Guess From SearchSpace
         S=pruneValidGuesses(F,O,S)
+        print(F,O,len(S))
         #guessIndex = random.randint(0,len(S)-1)
-        F=bestGuess(S, F, O) #New Guess
+        if len(S) == 1:
+            F=S[0]
+        else:
+            F=bestGuess(S) #New Guess
         #print('NewGuess',F,'SizeSearchSpace',len(S))
         #F=S[guessIndex,:].tolist() #New Guess
         O=Feedback(CODE, F)                                #Output from guess     
         n+=1                                       #Iteration Counter
-        if all(F==CODE):
+        if O[0] == 4:
             print('solution',F,'Pegs',Feedback(CODE, F),'Guesses',n,'ShapeSolutionSpace',np.shape(S),l) #Printing result
             break #Starting new game
     Iteration[l]=n
