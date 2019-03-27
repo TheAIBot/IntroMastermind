@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 12 10:48:59 2019
-
 @author: jonatan
 """
 import numpy as np
@@ -70,13 +69,26 @@ def delW1(Guess, pegs, searchSpace):
         searchSpace = np.delete(searchSpace, indicesToRemove, 0)
     
 
+#    pegSum = pegs.sum()
+#    if pegSum < npos:
+#        indicesToRemove = []
+#        for i in range(len(searchSpace)):
+#            if len(set(searchSpace[i, :]).intersection(Guess)) > pegSum:
+#                indicesToRemove.append(i)  
+#        searchSpace = np.delete(searchSpace, indicesToRemove, 0)
+#    return searchSpace
     pegSum = pegs.sum()
-    if pegSum < npos:
-        indicesToRemove = []
-        for i in range(len(searchSpace)):
-            if len(set(searchSpace[i, :]).intersection(Guess)) > pegSum:
-                indicesToRemove.append(i)  
-        searchSpace = np.delete(searchSpace, indicesToRemove, 0)
+#    if pegSum < npos:
+    indicesToRemove = []
+    for i in range(len(searchSpace)):
+        remove = 0
+        for k in searchSpace[i,:]:
+            for j in np.unique(Guess):
+                if k == j:
+                    remove += 1
+        if remove < pegSum:
+            indicesToRemove.append(i)
+    searchSpace = np.delete(searchSpace, indicesToRemove, 0)
     return searchSpace
 
 ## Transforming Search Space With Black PEGS 
@@ -129,11 +141,10 @@ def bestGuess(SearchSpace, origGuess, origFeedback):
                     #print(len(S))
                     if(len(S) > worstCaseDecreasedSearchSpace):
                         worstCaseDecreasedSearchSpace = len(S)
-        print(i)
         if(worstCaseDecreasedSearchSpace < bestWorstCaseDecreasedSearchSpace):
             bestWorstCaseDecreasedSearchSpace = worstCaseDecreasedSearchSpace
             bestG = guess
-    print(bestWorstCaseDecreasedSearchSpace)
+    print('BestGuessThing',bestWorstCaseDecreasedSearchSpace)
     return(bestG)
 
 StateSpace = np.ones((ncolor**npos,npos), dtype=int) #Full State Space
@@ -141,23 +152,26 @@ createStateSpace(StateSpace, npos, 0, [])
 
 
 #Play the game
-Iteration=np.zeros(1000)
-for l in range(1000):         
+Iteration=np.zeros(1)
+for l in range(1):         
     S=StateSpace[:,:]                                   #Search Space
-    CODE=S[random.randint(0,len(S)-1),:]        # Random CODE
-    guessIndex = random.randint(0,len(S)-1)
+    #CODE=S[random.randint(0,len(S)-1),:]        # Random CODE
+    CODE=np.array([1,0,0,4])
+    #guessIndex = random.randint(0,len(S)-1)
     F=bestGuess(S, None, None)  #Initial Guess
-    print(F)
     #F=S[guessIndex,:].tolist()  #Initial Guess
+    #F=[4,4,4,1]
+    print('InitialGuess',F)
     n=1
     O=Feedback(CODE, F)
     while O[BLACKP] != npos:
+        guessIndex=int(np.where(np.all(S==F,axis=1))[0])
         S=RemoveIndex(guessIndex, S) #Removing Guess From SearchSpace
         S=delB1(F,O,S)                 #Acting on Black pegs
         S=delW1(F,O,S)                 #Acting on White pegs
         guessIndex = random.randint(0,len(S)-1)
         F=bestGuess(S, F, O) #New Guess
-        print(F)
+        print('NewGuess',F,'SizeSearchSpace',len(S))
         #F=S[guessIndex,:].tolist() #New Guess
         O=Feedback(CODE, F)                                #Output from guess     
         n+=1                                       #Iteration Counter
@@ -170,4 +184,4 @@ print(round(np.average(Iteration),2),sum(Iteration),max(Iteration))
 
 #TIME
 elapsed_time = time.process_time() - tid
-print('Time:',round(elapsed_time,2),'s','Time pr game:',round(elapsed_time/l,2),'s')
+print('Time:',round(elapsed_time,2),'s','Time pr game:',round(elapsed_time/2,2),'s')
