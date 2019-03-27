@@ -32,26 +32,6 @@ npos = 4
 colors = np.arange(ncolor)
 #Functions
 
-##  Output funtion
-def Feedback(answer, guess): 
-    feedback = np.array([0, 0])
-    feedback[BLACKP] = (answer == guess).sum() # BLACK pegs
-    for color in colors:          # White pegs
-        colorOccurencesInGuess  = (guess  == color).sum()
-        colorOccurencesInAnswer = (answer == color).sum()
-        if colorOccurencesInAnswer > 0 and colorOccurencesInGuess > 0:
-            if colorOccurencesInGuess <= colorOccurencesInAnswer:
-                feedback[WHITEP] += colorOccurencesInGuess
-            if colorOccurencesInGuess > colorOccurencesInAnswer:
-                feedback[WHITEP] += colorOccurencesInAnswer
-    feedback[WHITEP] -= feedback[BLACKP]          # White pegs minus black pegs avoid double count
-    return feedback
-
-##  Deleting by index
-def RemoveIndex(index, searchSpace):
-    return np.delete(searchSpace, index, 0)
-            
-
 def sumEquals(a, b):
     s = 0
     for i in range(len(a)):
@@ -59,52 +39,63 @@ def sumEquals(a, b):
             s = s + 1
     return s
 
-## Transforming Search Space With White PEGS 
-def delW1(Guess, pegs, searchSpace):
-    if (pegs[WHITEP] != 0) & (pegs[BLACKP] == 0):                             #If there is white pegs and no black
-        indicesToRemove = []
-        for i in range(len(searchSpace)):   #Going throw states in S
-            if sumEquals(searchSpace[i, :], Guess) > 0:
-                indicesToRemove.append(i)
-        searchSpace = np.delete(searchSpace, indicesToRemove, 0)
-    
+def sumSame(a, b):
+    s = 0
+    for i in range(len(a)):
+        if a[i] == b:
+            s = s + 1
+    return s
 
-#    pegSum = pegs.sum()
-#    if pegSum < npos:
-#        indicesToRemove = []
-#        for i in range(len(searchSpace)):
-#            if len(set(searchSpace[i, :]).intersection(Guess)) > pegSum:
-#                indicesToRemove.append(i)  
-#        searchSpace = np.delete(searchSpace, indicesToRemove, 0)
-#    return searchSpace
-    pegSum = pegs.sum()
+##  Output funtion
+def Feedback(answer, guess): 
+    feedback = [0, 0]
+    colorsInGuess = set()
+    for i in range(len(guess)):
+        if guess[i] == answer[i]:
+            feedback[BLACKP] += 1
+        else:
+            colorsInGuess.add(guess[i])
+    for i in colorsInGuess:
+        if i in answer:
+            feedback[WHITEP] += 1
+
+
+    #feedback[BLACKP] = sumEquals(answer, guess) # BLACK pegs
+    #for color in colors:          # White pegs
+    #    colorOccurencesInGuess  = sumSame(guess, color)
+    #    colorOccurencesInAnswer = sumSame(answer, color)
+    #    if colorOccurencesInAnswer > 0 and colorOccurencesInGuess > 0:
+    #        if colorOccurencesInGuess <= colorOccurencesInAnswer:
+    #            feedback[WHITEP] += colorOccurencesInGuess
+    #        if colorOccurencesInGuess > colorOccurencesInAnswer:
+    #            feedback[WHITEP] += colorOccurencesInAnswer
+    #feedback[WHITEP] -= feedback[BLACKP]          # White pegs minus black pegs avoid double count
+    return feedback
+
+##  Deleting by index
+def RemoveIndex(index, searchSpace):
+    return np.delete(searchSpace, index, 0)
+
+def pruneValidGuesses(Guess, pegs, searchSpace):
     indicesToRemove = []
-    SSS=searchSpace[:,:].copy()
     for i in range(len(searchSpace)):
-        remove = 0
-        for k in Guess:
-            index=0
-            for j in SSS[i,:]:
-                if (k == j):
-                    remove += 1
-                    SSS[i,index] = -1
-                    break
-                index += 1
-        if remove < pegSum:
-            indicesToRemove.append(i)
+        feedback = Feedback(searchSpace[i, :], Guess)
+        if feedback[0] != pegs[0] or feedback[1] != pegs[1]:
+            indicesToRemove.append(i)     
     searchSpace = np.delete(searchSpace, indicesToRemove, 0)
     return searchSpace 
 
-## Transforming Search Space With Black PEGS 
-def delB1(guess, pegs, searchSpace):
-    if pegs[BLACKP] == 0:                                     # If no black return
-        return searchSpace
-        
-    indicesToRemove = []
-    for i in range(len(searchSpace)):   #Going throw states from the bag of SS  
-        if not sumEquals(searchSpace[i, :], guess) == pegs[BLACKP]: #With k, Guess 5.15, with pegs 4.6-5.1
-            indicesToRemove.append(i)
-    return np.delete(searchSpace, indicesToRemove, 0)
+def pruneValidGuessesGetNumberOfDeletedGuesses(Guess, pegs, searchSpace):
+    numberOfDeletedGuesses = 0
+    for i in range(len(searchSpace)):
+        feedback = Feedback(Guess, searchSpace[i, :])
+        print(feedback)
+        if feedback[0] != pegs[0] or feedback[1] != pegs[1]:
+            numberOfDeletedGuesses += 1
+            if numberOfDeletedGuesses == len(searchSpace):
+                print("")
+    return numberOfDeletedGuesses 
+
 #######################
 
 
@@ -137,14 +128,14 @@ def bestGuess(SearchSpace, origGuess, origFeedback):
         
         for j in range(npos+1):
             for k in range(npos+1-j):
-                if abs(origFeedbackSum - (j + k)) <= guessDifference:
-                    S = SearchSpace[:,:]
-                    S = RemoveIndex(i, S)
-                    S = delB1(guess, O, S)
-                    S = delW1(guess, O, S)
+                if abs(origFeedbackSum - (j + k)) < guessDifference:
+                    deletedGuesses = pruneValidGuessesGetNumberOfDeletedGuesses(guess, [j, k], SearchSpace)
+                    guessesRemaining = len(SearchSpace) - deletedGuesses
+                    if guessesRemaining <= 0:
+                        print(guessesRemaining)
                     #print(len(S))
-                    if(len(S) > worstCaseDecreasedSearchSpace):
-                        worstCaseDecreasedSearchSpace = len(S)
+                    if(guessesRemaining > worstCaseDecreasedSearchSpace):
+                        worstCaseDecreasedSearchSpace = guessesRemaining
         if(worstCaseDecreasedSearchSpace < bestWorstCaseDecreasedSearchSpace):
             bestWorstCaseDecreasedSearchSpace = worstCaseDecreasedSearchSpace
             bestG = guess
@@ -158,23 +149,22 @@ createStateSpace(StateSpace, npos, 0, [])
 
 
 #Play the game
-Iteration=np.zeros(1)
-for l in range(1):         
+Iteration=np.zeros(100)
+for l in range(100):         
     S=StateSpace[:,:]                                   #Search Space
     CODE=S[random.randint(0,len(S)-1),:]        # Random CODE
     #CODE=np.array([1,0,2,4])
-    #guessIndex = random.randint(0,len(S)-1)
+    guessIndex = random.randint(0,len(S)-1)
     F=bestGuess(S, None, None)  #Initial Guess
     #F=S[guessIndex,:].tolist()  #Initial Guess
     #F=[2,2,4,4]
-    print('InitialGuess',F)
+    #print('InitialGuess',F)
     n=1
     O=Feedback(CODE, F)
     while O[BLACKP] != npos:
         guessIndex=int(np.where(np.all(S==F,axis=1))[0])
         S=RemoveIndex(guessIndex, S) #Removing Guess From SearchSpace
-        S=delB1(F,O,S)                 #Acting on Black pegs
-        S=delW1(F,O,S)                 #Acting on White pegs
+        S=pruneValidGuesses(F,O,S)
         #guessIndex = random.randint(0,len(S)-1)
         F=bestGuess(S, F, O) #New Guess
         #print('NewGuess',F,'SizeSearchSpace',len(S))
