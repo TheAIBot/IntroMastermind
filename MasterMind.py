@@ -12,16 +12,6 @@ import sys
 
 tid = time.process_time()
 
-#arr = np.array([[1],[2],[3],[4],[5],[6],[7],[8]])
-#print(arr)
-#toDelete = [0, 3, 6]
-#arr = np.delete(arr, toDelete, 0)
-#print(arr)
-
-#print((np.array([1,2,2,4]) == [3,2,5,2]).sum())
-
-#sys.exit("Error message")
-
 
 BLACKP = 0
 WHITEP = 1
@@ -32,22 +22,9 @@ npos = 4
 colors = np.arange(ncolor)
 #Functions
 
-def sumEquals(a, b):
-    s = 0
-    for i in range(len(a)):
-        if a[i] == b[i]:
-            s = s + 1
-    return s
-
-def sumSame(a, b):
-    s = 0
-    for i in range(len(a)):
-        if a[i] == b:
-            s = s + 1
-    return s
 
 ##  Output funtion
-def Feedback(answer, guess): 
+def Feedback(answer, guess):
     feedback = [0, 0]
     colorsInGuess = set()
     colorsInAnswer = []
@@ -62,18 +39,6 @@ def Feedback(answer, guess):
     for i in colorsInGuess:
         if i in colorsInAnswer:
             feedback[WHITEP] += 1
-
-
-    #feedback[BLACKP] = sumEquals(answer, guess) # BLACK pegs
-    #for color in colors:          # White pegs
-    #    colorOccurencesInGuess  = sumSame(guess, color)
-    #    colorOccurencesInAnswer = sumSame(answer, color)
-    #    if colorOccurencesInAnswer > 0 and colorOccurencesInGuess > 0:
-    #        if colorOccurencesInGuess <= colorOccurencesInAnswer:
-    #            feedback[WHITEP] += colorOccurencesInGuess
-    #        if colorOccurencesInGuess > colorOccurencesInAnswer:
-    #            feedback[WHITEP] += colorOccurencesInAnswer
-    #feedback[WHITEP] -= feedback[BLACKP]          # White pegs minus black pegs avoid double count
     return feedback
 
 ##  Deleting by index
@@ -113,6 +78,7 @@ def createStateSpace(stateSpace, columnsLeft, index, guess):
 
 ## Calculate the best guess
 def bestGuess(SearchSpace):
+    print('s')
     bestG = np.array([])
     minimaxDeletedStates = 0
     S = SearchSpace
@@ -134,23 +100,23 @@ createStateSpace(StateSpace, npos, 0, [])
 
 
 #Play the game
-Iteration=np.zeros(50)
-for l in range(50):         
+Iteration=np.zeros(10)
+for l in range(10):         
     S=StateSpace[:,:]                                   #Search Space
     CODE=S[random.randint(0,len(S)-1),:]        # Random CODE
-    print(CODE)
+    #print(CODE)
     #CODE=np.array([1,0,2,4])
-    #guessIndex = random.randint(0,len(S)-1)
+    guessIndex = random.randint(0,len(S)-1)
     #F=bestGuess(S)  #Initial Guess
-    #F=S[guessIndex,:].tolist()  #Initial Guess
-    F=np.array([0,0,1,2])
+    F=S[guessIndex,:].tolist()  #Initial Guess
+    F=np.array([0,0,1,1])
     n=1
     O=Feedback(CODE, F)
     while O[BLACKP] != npos:
         guessIndex=int(np.where(np.all(S==F,axis=1))[0])
         S=RemoveIndex(guessIndex, S) #Removing Guess From SearchSpace
         S=pruneValidGuesses(F,O,S)
-        print(F,O,len(S))
+        #print(F,O,len(S))
         #guessIndex = random.randint(0,len(S)-1)
         if len(S) == 1:
             F=S[0]
@@ -161,7 +127,7 @@ for l in range(50):
         O=Feedback(CODE, F)                                #Output from guess     
         n+=1                                       #Iteration Counter
         if O[0] == 4:
-            print('solution',F,'Pegs',Feedback(CODE, F),'Guesses',n,'ShapeSolutionSpace',np.shape(S),l) #Printing result
+            #print('solution',F,'Pegs',Feedback(CODE, F),'Guesses',n,'ShapeSolutionSpace',np.shape(S),l) #Printing result
             break #Starting new game
     Iteration[l]=n
 #Result
@@ -169,4 +135,6 @@ print(round(np.average(Iteration),2),sum(Iteration),max(Iteration))
 
 #TIME
 elapsed_time = time.process_time() - tid
-print('Time:',round(elapsed_time,2),'s','Time pr game:',round(elapsed_time/2,2),'s')
+print('Time:',round(elapsed_time,2),'s','Time pr game:',round(elapsed_time/(l+1),2),'s')
+# Guess with MinMax 4.46 223.0 6.0
+# Random Guesses 4.76 238.0 6.0 
