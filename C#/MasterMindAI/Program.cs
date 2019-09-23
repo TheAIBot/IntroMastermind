@@ -34,19 +34,6 @@ namespace MasterMindAI
             return index;
         }
 
-        internal static int Sum(this bool[] array)
-        {
-            int sum = 0;
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (array[i])
-                {
-                    sum++;
-                }
-            }
-            return sum;
-        }
-
         internal static void Foreach<T>(this T[] array, Action<T> action)
         {
             foreach (var item in array)
@@ -199,7 +186,7 @@ namespace MasterMindAI
                             //Mark invalid states
                             PruneSearchSpace(searchSpace, searchSpaceSize, removeRow, feedback, guess, columns, colorCount);
 
-                            int stateSize = searchSpaceSize - removeRow.Sum();
+                            int stateSize = searchSpaceSize - IntrinsicAlgos.Sum(removeRow);
                             //Console.WriteLine(stateSize);
                             if (stateSize > worstCaseDecreasedSearchSpace)
                             {

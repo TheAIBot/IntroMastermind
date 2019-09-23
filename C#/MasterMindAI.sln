@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.438
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29311.281
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MasterMindAI", "MasterMindAI\MasterMindAI.csproj", "{C65482C7-497D-4D27-827B-068CBC7A33A5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntrinsicAlgo", "..\..\..\C#\Klasser\IntrinsicAlgo\IntrinsicAlgo\IntrinsicAlgo.csproj", "{CEBA735A-BC61-48BF-AB66-45133E72663A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{C65482C7-497D-4D27-827B-068CBC7A33A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C65482C7-497D-4D27-827B-068CBC7A33A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C65482C7-497D-4D27-827B-068CBC7A33A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEBA735A-BC61-48BF-AB66-45133E72663A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEBA735A-BC61-48BF-AB66-45133E72663A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEBA735A-BC61-48BF-AB66-45133E72663A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEBA735A-BC61-48BF-AB66-45133E72663A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
